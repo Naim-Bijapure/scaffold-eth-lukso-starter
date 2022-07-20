@@ -1,0 +1,29 @@
+{
+    "4": {
+        "contracts": {
+            "YourContract": {
+                "address": "0xbbd3d9da3abb32d81732ef64973bfcf1ab4a4b01"
+            }
+        }
+    },
+    "2828": {
+        "contracts": {
+            "YourContract": {
+                "address": "0x20c2cd8863514d72cd0e62d0a80404a88c23dc07"
+            },
+            "YourLukso": {
+                "address": "0xe0b6e898373591c4477889beeed33e02d4c559f6"
+            }
+        }
+    },
+    "31337": {
+        "contracts": {
+            "YourContract": {
+                "address": "0xf9e2762d3fcb71144bb94bfece55c2a9a192a5f0"
+            },
+            "YourLukso": {
+                "address": "0x1162d6c6ef5c412142faeef6bc37e49be4241077"
+            }
+        }
+    }
+}
