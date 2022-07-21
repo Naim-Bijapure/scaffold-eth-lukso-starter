@@ -13,7 +13,7 @@ import useAppLoadContract from "../hooks/useAppLoadContract";
 import { useStore } from "../store/useStore";
 
 // Our static variables
-const SAMPLE_PROFILE_ADDRESS = "0xB990CfE5474F42fee8c22ee0852f1110a3E798e1";
+const SAMPLE_PROFILE_ADDRESS = "0x5DA6cbe08A4321b9368f7B315b658C0C15171129";
 const RPC_ENDPOINT = "https://rpc.l16.lukso.network";
 // const RPC_ENDPOINT = "http://0.0.0.0:8545";
 const IPFS_GATEWAY = "https://2eff.lukso.dev/ipfs/";
@@ -88,10 +88,10 @@ export default function PocPage(): ReactElement {
        * FETCH PROFILE DATA
        * ---------------------*/
       //@ts-ignore
-      const etherProvider = new ethers.providers.Web3Provider(window.ethereum);
+      // const etherProvider = new ethers.providers.Web3Provider(window.ethereum);
 
-      // const provider = window.ethereum;
-      const provider = etherProvider;
+      const provider = window.ethereum;
+      // const provider = etherProvider;
       const config = { ipfsGateway: IPFS_GATEWAY };
       // @ts-ignore
       async function fetchProfile(address): any {
