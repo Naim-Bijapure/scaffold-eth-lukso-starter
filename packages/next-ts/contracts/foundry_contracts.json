@@ -19,10 +19,10 @@
     "31337": {
         "contracts": {
             "YourContract": {
-                "address": "0xf9e2762d3fcb71144bb94bfece55c2a9a192a5f0"
+                "address": "0x17c5edf2b3d713de2839c7f5a738d0e2e3de20b9"
             },
             "YourLukso": {
-                "address": "0x1162d6c6ef5c412142faeef6bc37e49be4241077"
+                "address": "0xbbd3d9da3abb32d81732ef64973bfcf1ab4a4b01"
             }
         }
     }
