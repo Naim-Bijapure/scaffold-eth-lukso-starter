@@ -7,6 +7,7 @@ pragma solidity >=0.8.0 <0.9.0;
 // contract YourLukso is LSP0ERC725Account {
 contract YourLukso {
   // constructor(address _newOwner) LSP0ERC725Account(_newOwner) {}
+
   constructor() {}
 
   string public purpose = "default purpose";
