@@ -5,7 +5,7 @@ import KeyManager from "@lukso/lsp-smart-contracts/artifacts/LSP6KeyManager.json
 import UniversalProfile from "@lukso/lsp-smart-contracts/artifacts/UniversalProfile.json";
 import { ethers, Signer } from "ethers";
 import Collapse, { Panel } from "rc-collapse";
-require("rc-collapse/assets/index.css");
+// require("rc-collapse/assets/index.css");
 
 import React, { ReactElement, useState } from "react";
 import { useAccount, useNetwork, useProvider, useSigner } from "wagmi";
@@ -20,7 +20,7 @@ const yourLuksoAddress = "0x28521cdFfBa62d81a246042f573a53C710EFAbDE";
 
 const yourLuksotBytecode = YourLukso__factory.bytecode;
 
-export default function PocPage(): ReactElement {
+export default function LuksoPage(): ReactElement {
   const { data: mainAccount, isSuccess } = useAccount();
   const provider = useProvider();
   console.log("provider: ", provider);
