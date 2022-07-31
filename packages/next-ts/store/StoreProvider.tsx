@@ -20,7 +20,8 @@ const StoreProvider: React.FC<any> = ({ children }) => {
   const [mounted, setMounted] = useState(false);
   const [state, dispatch] = useReducer(Reducer, initialState);
 
-  const { ethPrice, usdPrice } = useDexPrice();
+  // const { ethPrice, usdPrice } = useDexPrice();
+  const ethPrice = 0;
 
   useEffect(() => {
     dispatch({ payload: { ethPrice } }); // <---- eg: dispatch global states with payload and state properties
