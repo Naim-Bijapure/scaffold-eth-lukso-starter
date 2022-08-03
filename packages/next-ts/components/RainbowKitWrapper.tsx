@@ -40,6 +40,8 @@ const RainbowKitWrapper: React.FC<any> = ({ children }) => {
     }
   }, [theme]);
 
+  console.log("chains: ", chains);
+
   return (
     <div>
       <WagmiConfig client={wagmiClient}>

@@ -11,7 +11,7 @@ import PunkBlockie from "../components/EthComponents/PunkBlockie";
 import { useStore } from "../store/useStore";
 
 const EthComponents: NextPage = () => {
-  const { data } = useAccount();
+  const { address } = useAccount();
   const [addressValue, setAddressValue] = useState<string>("");
   const [ethValue, setEthValue] = useState<number>();
   const provider = useProvider();
@@ -19,6 +19,7 @@ const EthComponents: NextPage = () => {
   const [state, dispatch] = useStore();
 
   const { ethPrice } = state;
+  const data = { address };
 
   return (
     <>

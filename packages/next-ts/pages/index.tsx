@@ -10,9 +10,10 @@ import useAppLoadContract from "../hooks/useAppLoadContract";
 const Home: NextPage = () => {
   const [contractPurpose, setContractPurpose] = useState<string>("");
 
-  const { data: accountData, isLoading, isSuccess, status, isFetched } = useAccount();
+  // const { data: accountData, isLoading, isSuccess, status, isFetched } = useAccount();
+  const { address } = useAccount();
 
-  const { data } = useBalance({ addressOrName: accountData?.address });
+  const { data } = useBalance({ addressOrName: address });
 
   const YourContract = useAppLoadContract({
     contractName: "YourContract",
@@ -20,6 +21,7 @@ const Home: NextPage = () => {
 
   const getPurpose = useCallback(async () => {
     const purpose = await YourContract?.purpose();
+    console.log("purpose: ", purpose);
     setContractPurpose(purpose as string);
   }, [YourContract]);
 
@@ -61,7 +63,7 @@ const Home: NextPage = () => {
             <span className="mr-2">🤖</span>
             An example to get your balance:{" "}
             <span className="font-bold text-green-900">{data && formatEther(data?.value as BigNumberish)}</span> for
-            address <span className="font-bold bg-primary-content">{accountData?.address}</span> from wagmi hooks!
+            address <span className="font-bold bg-primary-content">{address}</span> from wagmi hooks!
           </div>
           <div className="m-8">
             <span className="mr-2">💭</span>
