@@ -61,10 +61,7 @@ const luksoChain: Chain = {
   testnet: false,
 };
 
-export const { chains, provider } = configureChains(
-  [...targedChains, luksoChain],
-  [alchemyProvider({ alchemyId: process.env.ALCHEMY_ID }), publicProvider()]
-); // <---- configure your custom chain
+export const { chains, provider } = configureChains([...targedChains, luksoChain], [publicProvider()]); // <---- configure your custom chain
 
 const { connectors } = getDefaultWallets({
   appName: "Scaffold-eth-next",

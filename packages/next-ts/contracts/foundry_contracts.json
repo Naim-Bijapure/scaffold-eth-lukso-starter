@@ -19,13 +19,13 @@
     "31337": {
         "contracts": {
             "YourContract": {
-                "address": "0x13971A6744772e0b95e4cbdC9c7aC4c7DB65700D"
+                "address": "0xBD9DC0c17983716e1cf1b8c5872Cc4269523282E"
             },
             "YourLukso": {
-                "address": "0x51D9AfD82Dd2BBd646D52eE905e0dec62512CF19"
+                "address": "0x6dCB7216DBA10061B1645cc792189f297EdE330b"
             },
             "Vault": {
-                "address": "0x19B076fe252339b2fB5e62f381A869E4b4cB6f2B"
+                "address": "0x0621BCc4B40F019BFb3D8d3E24E0E4C1D06F3f26"
             }
         }
     }

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
+/* eslint-disable @typescript-eslint/require-await */
 import ERC725 from "@erc725/erc725.js";
 import erc725schema from "@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json";
 import { LSPFactory } from "@lukso/lsp-factory.js";
@@ -21,7 +23,7 @@ const yourLuksoAddress = "0x28521cdFfBa62d81a246042f573a53C710EFAbDE";
 const yourLuksotBytecode = YourLukso__factory.bytecode;
 
 export default function LuksoPage(): ReactElement {
-  const { data: mainAccount, isSuccess } = useAccount();
+  const { address: mainAccount } = useAccount();
   const provider = useProvider();
   console.log("provider: ", provider);
   const { data: signer } = useSigner();
@@ -31,12 +33,12 @@ export default function LuksoPage(): ReactElement {
   const [contractPurpose, setContractPurpose] = useState("");
   const [yourLuksoContract, setYourLuksoContract] = useState<any>();
 
-  const { activeChain } = useNetwork();
+  const { chain: activeChain } = useNetwork();
   console.log("activeChain: ", activeChain);
 
   const RPC_ENDPOINT = activeChain?.rpcUrls ? activeChain?.rpcUrls.default : "";
 
-  const onCreateUP = async (): any => {
+  const onCreateUP: () => any = async (): Promise<any> => {
     try {
       console.log("onCreateUP: started ");
 
@@ -80,7 +82,7 @@ export default function LuksoPage(): ReactElement {
     }
   };
 
-  const onFetchUPData = async (): any => {
+  const onFetchUPData = async (): Promise<any> => {
     try {
       //
       /** ----------------------
@@ -108,7 +110,7 @@ export default function LuksoPage(): ReactElement {
     }
   };
 
-  const onInteractOtherContract = async (): any => {
+  const onInteractOtherContract = async (): Promise<any> => {
     try {
       const OPERATION_CALL = 0;
 
@@ -177,7 +179,7 @@ export default function LuksoPage(): ReactElement {
     }
   };
 
-  const onDeployYourLukso = async (): any => {
+  const onDeployYourLukso = async (): Promise<any> => {
     try {
       const mySigner = new ethers.Wallet(account.privateKey, provider);
 
@@ -193,7 +195,7 @@ export default function LuksoPage(): ReactElement {
     }
   };
 
-  const onRefreshPurpose = async (): any => {
+  const onRefreshPurpose = async (): Promise<any> => {
     try {
       const purpose = await yourLuksoContract.purpose();
       console.log("purpose: ", purpose);
@@ -203,7 +205,7 @@ export default function LuksoPage(): ReactElement {
     }
   };
 
-  const onGetUPAddress = async (): any => {
+  const onGetUPAddress = async (): Promise<any> => {
     try {
       const data = signer?.getAddress();
       console.log("data: ", data);
@@ -211,7 +213,7 @@ export default function LuksoPage(): ReactElement {
       // console.log("accountsData: ", accountsData);
       // @ts-ignore
       const etherProvider = new ethers.providers.Web3Provider(window.ethereum);
-      console.log("mainAccount: ", mainAccount?.address);
+      console.log("mainAccount: ", mainAccount);
 
       // const accountsRequest: string[] = await etherProvider.send("eth_requestAccounts", []);
       // const signer = etherProvider.getSigner();

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/require-await */
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { ERC725 } from "@erc725/erc725.js";
 import LSP10ReceivedVaults from "@erc725/erc725.js/schemas/LSP10ReceivedVaults.json";
 import erc725schema from "@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json";
@@ -7,8 +9,9 @@ import { LSPFactory } from "@lukso/lsp-factory.js";
 import KeyManager from "@lukso/lsp-smart-contracts/artifacts/LSP6KeyManager.json";
 import UniversalProfile from "@lukso/lsp-smart-contracts/artifacts/UniversalProfile.json";
 import { BytesLike, ContractInterface, ethers, Signer } from "ethers";
+import { GetStaticProps } from "next";
 import { useEffect, useState } from "react";
-import { useNetwork, useProvider, useSigner, useAccount, useConnect } from "wagmi";
+import { useAccount, useConnect, useNetwork, useProvider, useSigner } from "wagmi";
 
 import account from "../contracts/account.json";
 import { Vault, Vault__factory } from "../contracts/contract-types";
@@ -50,31 +53,26 @@ const myStringArr = {
 erc725schema.push(myString);
 erc725schema.push(myStringArr);
 
-const encode = (erc725Obj, key: string, val: any): any => {
-  try {
-    const encoded = erc725Obj.encodeData([{ keyName: key, value: val }]);
-    console.log("encoded: ", encoded);
-    return encoded;
-  } catch (error) {
-    console.log("error: ", error);
-  }
+const createMapkey: (keyName: string, propertyType: string) => string = (keyName, propertyType) => {
+  // const baseHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LSP8MetadataAddress"));
+  // console.log("baseHash: ", baseHash);
+
+  const key1 = ethers.utils.hexDataSlice(ethers.utils.keccak256(ethers.utils.toUtf8Bytes(keyName)), 0, 10);
+
+  const key2 = ethers.utils.hexDataSlice(ethers.utils.keccak256(ethers.utils.formatBytes32String(propertyType)), 0, 20);
+  // const key2 = ethers.utils.hexDataSlice(ethers.utils.keccak256(propertyType), 0, 20);
+
+  const combined = ethers.utils.hexConcat([key1, "0x0000", key2]);
+  return combined;
 };
 
-const decode = (erc725_customEncode, key: string, val: any): any => {
-  try {
-    const decoded = erc725_customEncode.decodeData([{ keyName: key, value: val }]);
-    return decoded;
-  } catch (error) {
-    console.log("error: ", error);
-  }
-};
-
-export default function PocPage(): JSX.Element {
+export default function PocPage({ data }): JSX.Element {
+  console.log("data: ", data);
   const [upAddress, setUpAddress] = useState<string>("");
   const [myUP, setMyUP] = useState<any>();
   const [myKM, setMyKM] = useState<any>();
   const [myWalletSigner, setMyWalletSigner] = useState<any>();
-  const [erc725, setErc725] = useState<any>();
+  const [erc725, setErc725] = useState<ERC725 | any>();
 
   const [pocData, setPocData] = useLocalStorage("pocData", { upAddress: "", vaultAddress: "" });
 
@@ -120,12 +118,16 @@ export default function PocPage(): JSX.Element {
     setMyUP(myUP);
     setMyKM(myKM);
 
-    // myUP.on("DataChanged", async (dataKey): Promise<any> => {
-    //   console.log("dataKey: ", dataKey);
-    //   const keyData = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("String[]"));
-    //   console.log('keyData: ', keyData);
-    //   const data = await erc725.getData(String(dataKey).slice(0, 34));
-    //   console.log("data: ", data);
+    // @ts-ignore
+    const myVault: Vault = new ethers.Contract(vaultAddress, Vault__factory.abi as ContractInterface, myWalletSigner);
+
+    // myVault.on("DataChanged", async (dataKey, value, value2): Promise<any> => {
+    // console.log("value: ", value);
+    // console.log("dataKey: ", dataKey);
+    // const keyData = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("String[]"));
+    // console.log("keyData: ", keyData);
+    // const data = await erc725.getData(String(dataKey).slice(0, 34));
+    // console.log("data: ", data);
     // });
   };
 
@@ -136,7 +138,7 @@ export default function PocPage(): JSX.Element {
     }
   }, [mainSigner, pocData]);
 
-  const onCreateUP = async (): any => {
+  const onCreateUP = async (): Promise<any> => {
     try {
       console.log("onCreateUP: started ");
 
@@ -196,6 +198,36 @@ export default function PocPage(): JSX.Element {
   };
 
   const onSetData: () => any = async (): Promise<any> => {
+    // const mapKeyValue = createMapkey("LSP8MetadataAddress", "cool");
+
+    const KEY_NAME = "chatRoom:<string>:<string>";
+    // const KEY_NAME = "middleData:<string>";
+    const mapKeyValue = ERC725.encodeKeyName(KEY_NAME, ["address1", "address2"]);
+    // const mapKeyValueTest = ERC725.encodeKeyName("MyKeyName:<uint32>", ["4081242941"]);
+    // console.log("mapKeyValueTest: ", mapKeyValueTest);
+
+    console.log("mapKeyValue: ", mapKeyValue);
+
+    const myMappedSchema = {
+      name: KEY_NAME,
+      key: mapKeyValue,
+      keyType: "Mapping",
+      // keyType: "Singleton",
+      valueType: "string[]",
+      valueContent: "String",
+    };
+    console.log("myMapCchema: ", myMappedSchema);
+
+    const isMyDataExists = erc725?.options?.schemas.find((data) => data.name === "N:<string>");
+    console.log("isMyDataExists: ", isMyDataExists);
+
+    if (isMyDataExists === undefined) {
+      // @ts-ignore
+      erc725?.options.schemas.push(myMappedSchema);
+    }
+
+    console.log(erc725?.options.schemas);
+
     const OPERATION_CALL = 0;
 
     // const hashData = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(JSON.stringify(UP_EDIT_DATA)));
@@ -213,23 +245,30 @@ export default function PocPage(): JSX.Element {
     // });
     const mainSigner = myWalletSigner;
 
-    const encodedData = erc725.encodeData({
+    // const encodedData = erc725?.encodeData({
+    //   // @ts-ignore
+    //   keyName: "String[]",
+    //   value: ["awesome new thing"],
+    // });
+
+    const encodedData = erc725?.encodeData({
       // @ts-ignore
-      keyName: "String[]",
-      value: ["awesome new thing"],
+      keyName: KEY_NAME,
+      dynamicKeyParts: ["address1", "address2"],
+      value: ["{address:asdf,message:'hello man'},{address:asdfasdf,message:'hi how are you'}"],
     });
 
     console.log("encodedData: ", encodedData);
 
     // encode the setData payload
     const abiPayload = myUP.interface.encodeFunctionData("setData(bytes32[],bytes[])", [
-      encodedData.keys,
-      encodedData.values,
+      encodedData?.keys,
+      encodedData?.values,
     ]);
 
     // const abiPayload = myUP.interface.encodeFunctionData("setData(bytes32,bytes)", [
-    //   String(encodedData.keys),
-    //   String(encodedData.values),
+    //   String(encodedData?.keys),
+    //   String(encodedData?.values),
     // ]);
 
     console.log("abiPayload: ", abiPayload);
@@ -238,22 +277,27 @@ export default function PocPage(): JSX.Element {
     const rcpt = await tx.wait();
     console.log("rcpt: ", rcpt);
 
-    // const result = await erc725.fetchData("LSP4TokenName");
-    // console.log("result: ", result);
+    // const result = await erc725?.fetchData("String[]");
+    const result = await erc725?.getData({
+      keyName: KEY_NAME,
+      // keyName: mapKeyValue,
+      dynamicKeyParts: ["address1", "address2"],
+    });
+    console.log("result: ", result);
   };
 
   const onGetData: () => any = async (): Promise<any> => {
-    const result = await erc725.fetchData("String[]");
+    const result = await erc725?.fetchData("String[]");
     console.log("result: ", result);
 
     // const keyData = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("String"));
-    const addressPermission = await erc725.getData({
+    const addressPermission = await erc725?.getData({
       keyName: "AddressPermissions:Permissions:<address>",
       dynamicKeyParts: account.address,
     });
-    console.log(addressPermission.value);
+    console.log(addressPermission?.value);
 
-    const decodedPermission = erc725.decodePermissions(addressPermission.value as string);
+    const decodedPermission = erc725?.decodePermissions(addressPermission?.value as string);
 
     // we use JSON.stringify to display the permission in a readable format
     console.log(`decoded permission for ${account.address} = ` + JSON.stringify(decodedPermission, null, 2));
@@ -417,7 +461,7 @@ export default function PocPage(): JSX.Element {
      * set the call permission
      * ---------------------*/
     const beneficiaryAddress = otherWalletAccount.address; // EOA address of an exemplary person
-    const beneficiaryPermissions = erc725.encodePermissions({
+    const beneficiaryPermissions = erc725?.encodePermissions({
       // ADDPERMISSIONS: true,
       CALL: true,
       // CHANGEOWNER: true,
@@ -436,7 +480,7 @@ export default function PocPage(): JSX.Element {
     });
 
     // step 3.1 - encode the data key-value pairs of the permissions to be set
-    const data = erc725.encodeData({
+    const data = erc725?.encodeData({
       // @ts-ignore
       keyName: "AddressPermissions:Permissions:<address>",
       dynamicKeyParts: beneficiaryAddress,
@@ -455,7 +499,8 @@ export default function PocPage(): JSX.Element {
     /** ----------------------
      * add allowed address
      * ---------------------*/
-    const allowedAddressData = erc725.encodeData({
+    const allowedAddressData = erc725?.encodeData({
+      // @ts-ignore
       keyName: "AddressPermissions:AllowedAddresses:<address>",
       dynamicKeyParts: otherWalletAccount.address,
       value: [vaultAddress],
@@ -464,15 +509,15 @@ export default function PocPage(): JSX.Element {
     console.log("allowedAddressData: ", allowedAddressData);
 
     const allowedAddressDataPayload = myUP.interface.encodeFunctionData("setData(bytes32[],bytes[])", [
-      allowedAddressData.keys,
-      allowedAddressData.values,
+      allowedAddressData?.keys,
+      allowedAddressData?.values,
     ]);
 
     const tx1 = await myKM.connect(myWalletSigner as Signer).execute(allowedAddressDataPayload, { gasLimit: 10000000 }); // <---- call the execute on key manager contract
     const rcpt1 = await tx1.wait();
     console.log("rcpt1: ", rcpt1);
 
-    const result1 = await myUP["getData(bytes32)"](allowedAddressData.keys[0]);
+    const result1 = await myUP["getData(bytes32)"](allowedAddressData?.keys[0]);
     console.log("result1: ", result1);
 
     /** ----------------------
@@ -490,7 +535,7 @@ export default function PocPage(): JSX.Element {
      * ---------------------*/
     const otherSigner = otherWalletAccount;
 
-    const encodedData = erc725.encodeData({
+    const encodedData = erc725?.encodeData({
       // @ts-ignore
       keyName: "String",
       value: "cool this is working i can do anything  man",
@@ -501,8 +546,8 @@ export default function PocPage(): JSX.Element {
     // encode the setData payload
     // @ts-ignore
     const setDataVaultPayload = myVault.interface.encodeFunctionData("setData(bytes32,bytes)", [
-      encodedData.keys[0],
-      encodedData.values[0],
+      encodedData?.keys[0],
+      encodedData?.values[0],
     ]);
 
     // @ts-ignore
@@ -524,8 +569,10 @@ export default function PocPage(): JSX.Element {
     const vaultStringData = await myVault["getData(bytes32)"](encodedData.keys[0] as BytesLike);
     console.log("vaultStringData: ", vaultStringData);
 
-    const vaultDecodedString = await erc725.decodeData({
+    const vaultDecodedString = erc725?.decodeData({
+      // @ts-ignore
       keyName: "String",
+
       value: vaultStringData,
     });
 
@@ -682,7 +729,7 @@ export default function PocPage(): JSX.Element {
     });
 
     // step 3.1 - encode the data key-value pairs of the permissions to be set
-    const data = erc725.encodeData({
+    const data = erc725?.encodeData({
       // @ts-ignore
       keyName: "AddressPermissions:Permissions:<address>",
       dynamicKeyParts: beneficiaryAddress,
@@ -699,7 +746,7 @@ export default function PocPage(): JSX.Element {
     console.log("rcpt: ", rcpt1);
 
     // set only String key permission
-    const dataKeysEncoded = erc725.encodeData({
+    const dataKeysEncoded = erc725?.encodeData({
       // @ts-ignore
       keyName: "AddressPermissions:AllowedERC725YKeys:<address>",
       dynamicKeyParts: otherWalletAccount.address,
@@ -724,7 +771,7 @@ export default function PocPage(): JSX.Element {
     //   value: ["after permission change"],
     // });
 
-    const encodedData = erc725.encodeData({
+    const encodedData = erc725?.encodeData({
       // @ts-ignore
       keyName: "String",
       value: "only string allowed updated !!!",
@@ -794,3 +841,9 @@ export default function PocPage(): JSX.Element {
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps = async (ctx) => {
+  return {
+    props: { data: "cool" },
+  };
+};
